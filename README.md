@@ -6,7 +6,7 @@
 
 > **"You will see the future songs with ADObell"**
 
-**ADObell**bot creado para la comunidad de **Ado**. Su misión es vigilar el canal oficial de YouTube de Ado las 24 horas del díapara avisar de nuevos avisos.
+**ADObell** bot creado para la comunidad de **Ado**. Su misión es vigilar el canal oficial de YouTube de Ado las 24 horas del díapara avisar de nuevos avisos.
 
 ## Funcionalidades
 
