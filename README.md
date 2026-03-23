@@ -11,8 +11,10 @@
 ## Funcionalidades
 
 * **Vigilancia 24/7 (Polling)**: Escanea el feed RSS de YouTube cada minuto buscando actualizaciones.
-* **Sistema de Memoria**: Utiliza una lógica de estado para evitar notificaciones duplicadas (solo avisa cuando el enlace es realmente nuevo).
+* **Sistema de Memoria**: Utiliza una lógica de estado para evitar notificaciones duplicadas (solo avisa cuando hay video nuevo).
 * **Comando On-Demand**: Usa `!ado` en Discord para consultar el último vídeo subido en cualquier momento.
+* **Comando setter**: Usa `!setcanal` en Dicord para establecer dónde quieres que el bot te avise de nuevos lanzamientos.
+* **Sistema de filtrado**: Mediante comprobaciones de redireccionamiento se filtra para que solo tenga en cuenta los nuevos videos (no shorts).
 * **Arquitectura Asíncrona**: Construido sobre `discord.ext.tasks` para un rendimiento eficiente sin bloquear el bot.
 
 ## Tecnológia utilizada
@@ -20,4 +22,5 @@
 * **Lenguaje:** [Python]
 * **Librería de Discord:** [discord.py]
 * **Parser de Datos:** [feedparser] (para procesar el XML de YouTube).
+* **Lectura de cabeceras** [requests] (conocer el redireccionamiento de las cabeceras).
 * **Hosting:** [Railway](railway.com) (Despliegue en la nube).
