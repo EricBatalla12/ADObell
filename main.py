@@ -24,11 +24,26 @@ ID_CANAL = int(os.getenv("ID_CANAL"))
 
 # NUESTRA MEMORIA: Variable global para guardar el último vídeo visto
 ultimo_enlace_conocido = None
-
 # Configuración de qué puede ver el bot, default para ver si se ha conectado
 # message_content para ver mensajes en el chat (comandos). 
 intents = discord.Intents.default()
 intents.message_content = True
+
+# Función que devuelve un bool si es un short, se comprueba dependiendo el código que nos devuelve Youtube al acceder al short/...
+def es_short(video_id):
+    #Prueba si un ID de vídeo pertenece a un Short comprobando si YouTube nos redirige.
+    url_prueba = f"https://www.youtube.com/shorts/{video_id}"
+    try:
+        # Se pide solo la cabecera para saber si nos quiere redirigir o no
+        respuesta = requests.head(url_prueba, allow_redirects=False, timeout=5)
+        
+        # Si YouTube responde con un 200 (OK), es que la página del Short existe -> ES UN SHORT
+        # Si responde con 303 o similar, es que nos está echando al reproductor normal -> ES VÍDEO
+        return respuesta.status_code == 200
+    except Exception as e:
+        print(f"Error comprobando el Short: {e}")
+        return False
+
 
 # Crear el bot y decirle que nuestros comandos empezarán por "!"
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -52,62 +67,60 @@ async def on_ready():
 # NUEVO COMANDO AUTOMÁTICO: Un bucle que se repite cada 1 minuto
 @tasks.loop(minutes=10)
 async def vigilar_youtube():
-    global ultimo_enlace_conocido # Le decimos a Python que use nuestra memoria global
+    global ultimo_enlace_conocido 
     
-    # 1. Obtenemos el canal de texto
     canal = bot.get_channel(ID_CANAL)
-    
-    if canal is None:
-        print("Error: No he encontrado el canal de Discord.")
-        return # Si no hay canal, abortamos el ciclo
+    if canal is None: return 
 
-    # 2. Leer YouTube (parseo del .xml obtenido)
-    feed = feedparser.parse(URL_RSS_ADO)
+    feed = obtener_feed_seguro(URL_RSS_ADO)
     
-    if len(feed.entries) > 0:
-        video_actual = feed.entries[0]
-        link_actual = video_actual.link
-        titulo_actual = video_actual.title
-        
-        # 3. Lógica de comprobación de Estado (¿Es nuevo?)
-        if ultimo_enlace_conocido is None:
-            # La primera vez que arranca, solo memoriza el vídeo actual en silencio
-            ultimo_enlace_conocido = link_actual
-            print(f"Sistema inicializado. Último vídeo en memoria: {titulo_actual}")
+    if feed and len(feed.entries) > 0:
+        # Recorremos los vídeos desde el más nuevo al más viejo
+        for video in feed.entries:
+            video_id = video.yt_videoid # Sacamos el ID oculto en el XML
             
-        elif link_actual != ultimo_enlace_conocido:
-            # Nuevo video. El enlace de internet es distinto al de la memoria
-            await canal.send(f"LA ADOMINACIÓN CONTINUA\n**{titulo_actual}**\n{link_actual}")
-            
-            # Actualizamos la memoria con el nuevo vídeo
-            ultimo_enlace_conocido = link_actual
-        else:
-            # El vídeo es el mismo, no hacemos nada (puedes quitar este print luego para no manchar la consola)
-            print("Chequeo rutinario: No hay vídeos nuevos.")
+            # Si NO es un short, entonces es el vídeo que buscamos
+            if not es_short(video_id):
+                link_actual = video.link
+                titulo_actual = video.title
+                
+                # --- Lógica de memoria ---
+                if ultimo_enlace_conocido is None:
+                    ultimo_enlace_conocido = link_actual
+                    print(f"Sistema inicializado. Último VÍDEO (No Short) en memoria: {titulo_actual}")
+                    
+                elif link_actual != ultimo_enlace_conocido:
+                    await canal.send(f"LA ADOMINACIÓN CONTINUA\n**{titulo_actual}**\n{link_actual}")
+                    ultimo_enlace_conocido = link_actual
+                else:
+                    print("Chequeo rutinario: No hay vídeos normales nuevos.")
+                
+                # Importante: Como ya hemos encontrado el último vídeo válido, rompemos el bucle
+                break
 
 # ==========================================
 # COMANDOS MANUALES
 # ==========================================
 
 # Decorador necesario para que la función bot sepa usar mi función ado
-@bot.command()
 # Como se utilizan Sockets Web es necesario que sea asíncrono para que el bot no colapse si tiene muchas peticiones.
+@bot.command()
 async def ado(ctx):
-    # Cuando el servidor de Discord responda se libera del await.
-    await ctx.send("Buscando el último vídeo de Ado...")
-
-    # El bot lee el archivo (parseo del .xml obtenido usando la constante global)
-    feed = feedparser.parse(URL_RSS_ADO)
+    await ctx.send("Buscando el último lanzamiento principal de Ado (ignorando Shorts)...")
     
-    # Si encuentra vídeos, saca el título y el link
-    if len(feed.entries) > 0:
-        ultimo_video = feed.entries[0]
-        titulo = ultimo_video.title
-        link = ultimo_video.link
-        
-        await ctx.send(f"¡Aquí tienes! **{titulo}**\n{link}")
+    feed = obtener_feed_seguro(URL_RSS_ADO)
+    
+    if feed and len(feed.entries) > 0:
+        for video in feed.entries:
+            if not es_short(video.yt_videoid):
+                titulo = video.title
+                link = video.link
+                await ctx.send(f"¡Aquí tienes! **{titulo}**\n{link}")
+                return # Salimos de la función al encontrarlo
+                
+        await ctx.send("Vaya, parece que solo he encontrado Shorts recientemente.")
     else:
-        await ctx.send("Vaya, no he encontrado ningún vídeo.")
+        await ctx.send("Error de conexión con la base de datos de YouTube.")
 
 # ==========================================
 # ARRANQUE DEL BOT

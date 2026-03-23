@@ -20,4 +20,4 @@
 * **Lenguaje:** [Python]
 * **Librería de Discord:** [discord.py]
 * **Parser de Datos:** [feedparser] (para procesar el XML de YouTube).
-* **Hosting:** [Discloud](https://discloudbot.com/) (Despliegue en la nube).
+* **Hosting:** [Railway](railway.com) (Despliegue en la nube).
