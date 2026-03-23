@@ -106,7 +106,7 @@ async def vigilar_youtube():
                     print(f"Sistema inicializado. Último VÍDEO (No Short) en memoria: {titulo_actual}")
                     
                 elif link_actual != ultimo_enlace_conocido:
-                    await canal.send(f"LA ADOMINACIÓN CONTINUA\n**{titulo_actual}**\n{link_actual}")
+                    await canal.send(f"LA ADOMINACIÓN CONTINÚA\n**{titulo_actual}**\n{link_actual}")
                     ultimo_enlace_conocido = link_actual
                 else:
                     print("Chequeo rutinario: No hay vídeos normales nuevos.")
@@ -122,7 +122,7 @@ async def vigilar_youtube():
 # Como se utilizan Sockets Web es necesario que sea asíncrono para que el bot no colapse si tiene muchas peticiones.
 @bot.command()
 async def ado(ctx):
-    await ctx.send("Buscando el último lanzamiento principal de Ado (ignorando Shorts)...")
+    await ctx.send("¿Ganas de escuchar a ADO? Normal, te llega en 3,2,1...")
     
     feed = obtener_feed_seguro(URL_RSS_ADO)
     
@@ -131,7 +131,7 @@ async def ado(ctx):
             if not es_short(video.yt_videoid):
                 titulo = video.title
                 link = video.link
-                await ctx.send(f"¡Aquí tienes! **{titulo}**\n{link}")
+                await ctx.send(f"**{titulo}**\n{link}")
                 return # Salimos de la función al encontrarlo
                 
         await ctx.send("Vaya, parece que solo he encontrado Shorts recientemente.")
