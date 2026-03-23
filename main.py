@@ -50,7 +50,7 @@ async def on_ready():
 # ==========================================
 
 # NUEVO COMANDO AUTOMÁTICO: Un bucle que se repite cada 1 minuto
-@tasks.loop(minutes=1)
+@tasks.loop(minutes=10)
 async def vigilar_youtube():
     global ultimo_enlace_conocido # Le decimos a Python que use nuestra memoria global
     
