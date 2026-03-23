@@ -1,5 +1,6 @@
 import discord #Librería para hablar con discord
 import feedparser #Librería para poder conectarse a YT
+import requests # Necesario para revisar cabeceras
 import os #Librería de seguridad para acceder al TOKEN desde local
 from dotenv import load_dotenv
 from discord.ext import commands, tasks #Comandos de bots y tareas en segundo plano (tasks)
@@ -47,6 +48,21 @@ def es_short(video_id):
 
 # Crear el bot y decirle que nuestros comandos empezarán por "!"
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+def obtener_feed_seguro(url):
+    # 1. Creamos una identidad falsa (User-Agent)
+    cabeceras = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+    try:
+        # 2. Hacemos la petición HTTP usando requests y nuestra identidad falsa
+        respuesta = requests.get(url, headers=cabeceras, timeout=10)
+        
+        # 3. Le pasamos el texto bruto (el XML de YouTube) a feedparser para que lo ordene
+        return feedparser.parse(respuesta.content)
+    except Exception as e:
+        print(f"Error en la petición: {e}")
+        return None
 
 # ==========================================
 # EVENTOS DEL SISTEMA
