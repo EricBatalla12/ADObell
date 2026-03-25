@@ -25,3 +25,6 @@
 * **Lectura de cabeceras** [requests] (conocer el redireccionamiento de las cabeceras).
 * **Hosting:** [Railway](railway.com) (Despliegue en la nube).
 
+## Añadir ADObell a tu servidor
+* **[Invita a ADObell a tu servidor](https://discord.com/oauth2/authorize?client_id=1485393138171379782&permissions=8&integration_type=0&scope=bot)**
+
