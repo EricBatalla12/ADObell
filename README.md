@@ -24,3 +24,5 @@
 * **Parser de Datos:** [feedparser] (para procesar el XML de YouTube).
 * **Lectura de cabeceras** [requests] (conocer el redireccionamiento de las cabeceras).
 * **Hosting:** [Railway](railway.com) (Despliegue en la nube).
+
+![ADObell](blob:https://gemini.google.com/7837546c-e82d-46ff-91b6-3c25e24480a6)
