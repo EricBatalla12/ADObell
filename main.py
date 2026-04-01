@@ -108,7 +108,7 @@ async def vigilar_youtube():
                     canales = cargar_canales()
                     
                     for server_id, canal_id in canales.items():
-                        canal_destino = bot.get_channel(canal_id)
+                        canal_destino = bot.get_channel(int(canal_id))
                         if canal_destino:
                             try:
                                 await canal_destino.send(f"LA ADOMINACIÓN CONTINUA\n**{titulo_actual}**\n{link_actual}", silent = True)
